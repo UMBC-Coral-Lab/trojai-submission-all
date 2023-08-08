@@ -26,14 +26,14 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
           --configure_models_dirpath ./models_to_train/round14/ 
   ```
 
-  * Any of the above options will run the training process and write the trained model to a directory specified by option --learned_parameters_dirpath.
-  * If automatic reconfiguration is run then the last set of training parameters used will be written in file specified by --metaparameters_filepath.
+  * Any of the above options will run the training process and write the trained model to a directory specified by option `--learned_parameters_dirpath`.
+  * If automatic reconfiguration is run then the last set of training parameters used will be written in file specified by `--metaparameters_filepath`.
 
 
  4. To run the GCN pipeline in inference mode on a model:
   ```
   python entrypoint.py infer \
-          --model_filepath ./model/id-00000119/model.pt \
+          --model_filepath ./models_to_train/round14/id-00000000/model.pt \
           --result_filepath ./output.txt \
           --scratch_dirpath ./scratch/ \
           --examples_dirpath ./examples/ \
@@ -43,7 +43,7 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
           --learned_parameters_dirpath ./learned_parameters/ 
   ```
 
-  * That will run inference on the model specified by option --model_filepath and write the probability of the model being trojaned to file specified by --result_filepath
+  * That will run inference on the model specified by option `--model_filepath` and write the probability of the model being trojaned to file specified by `--result_filepath`.
 
 
  5. To build the container after you have trained the models:
