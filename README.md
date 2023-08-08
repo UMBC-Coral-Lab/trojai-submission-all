@@ -5,7 +5,7 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
 
  1. Before doing anything else: ```conda activate toy-project-rl-env```
 
- 2. To run the SVM pipeline in one-off reconfiguration:
+ 2. To run the GCN pipeline in one-off reconfiguration:
   ```
   python entrypoint.py configure \
           --scratch_dirpath ./scratch/ \
@@ -15,7 +15,7 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
           --configure_models_dirpath ./models_to_train/round14/ 
   ```
 
- 3. To run the SVM pipeline in automatic reconfiguraiton:
+ 3. To run the GCN pipeline in automatic reconfiguraiton:
   ```
   python entrypoint.py configure \
           --automatic_configuration \
@@ -30,7 +30,7 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
   * If automatic reconfiguration is run then the last set of training parameters used will be written in file specified by --metaparameters_filepath.
 
 
- 4. To run the SVM pipeline in inference mode on a model:
+ 4. To run the GCN pipeline in inference mode on a model:
   ```
   python entrypoint.py infer \
           --model_filepath ./model/id-00000119/model.pt \
