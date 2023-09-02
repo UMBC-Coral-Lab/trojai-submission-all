@@ -1,5 +1,5 @@
 # trojai-submission-all
-## Branch: mlp-trojai-submission-r12
+## Branch: round12-cyber-pdf-dec2022-mlp
 
 The MLP meta-classifier submission for TrojAI Round12 `cyber-pdf-dec2022`
 
