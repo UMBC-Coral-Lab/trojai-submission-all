@@ -3,15 +3,11 @@
     "title": "Meta-Parameters for GCN for Round14",
     "technique": "GCN",
     "technique_description": "GCN Pipeline to Detect Trojaned Models",
-    "technique_changes": "Round14-Run1 (rl-lavaworld-jul2023)",
+    "technique_changes": "Round14-Run4 (rl-lavaworld-jul2023)",
     "technique_type": ["Other"],
-    "commit_id": "11b59fe",
+    "commit_id": "d683b69",
     "repo_name": "https://github.com/UMBC-Coral-Lab/trojai-submission-all/tree/round14-rl-lavaworld-jul2023-gcn",
-    "required": [ 
-        "train_epochs", 
-        "train_batch_size", 
-        "train_feature_vector" 
-    ],
+    "required": [],
     "additionalProperties": false,
     "type": "object",
     "properties": {

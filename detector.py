@@ -340,7 +340,7 @@ class Detector(AbstractDetector):
 
         model = GraphConvModel_WithEdgeFeat(hidden_channels = self.train_params["hidden_channels"], num_features = dataset.num_features, num_classes = self.train_params["num_classes"])
 
-        checkpoint = torch.load( load_model_path )
+        checkpoint = torch.load( load_model_path, map_location = device )
         model.load_state_dict(checkpoint["model_state_dict"])
         model = model.to(device)
 

@@ -6,6 +6,9 @@ From: python:3.8-bullseye
     ./lib/copy_all_models.py
     ./lib/gcn_dataset.py
     ./lib/gcn_model.py
+    ./utils /
+    ./detector.py /
+    ./entrypoint.py /
     ./gcn_pipeline.def /
     ./gcn_pipeline.py /
     ./metaparameters.json /
@@ -15,7 +18,7 @@ From: python:3.8-bullseye
 
 %post
     pip install --upgrade pip
-    pip install --upgrade pip
+    pip install pandas==1.3.5
     pip install torch --index-url https://download.pytorch.org/whl/cpu
     pip install trojai_rl
     pip install gym_minigrid==1.0.2
@@ -35,7 +38,7 @@ From: python:3.8-bullseye
     echo "Container was created $NOW"
     echo "Arguments received: $*"
     echo $PATH
-    exec python3 /gcn_pipeline.py "$@"
+    exec python3 /entrypoint.py "$@"
 
 %labels
     Author UMBC

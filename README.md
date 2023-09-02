@@ -59,7 +59,7 @@ The GCN Pipeline submission for TrojAI for Round-14 `rl-lavaworld-jul2023`
           --nv \
           ./rl-lavaworld-jul2023_sts_UMBC_gcn.simg \
           infer \
-          --model_filepath=./model/id-00000119/model.pt \
+          --model_filepath=./models_to_train/round14/id-000000012/model.pt \
           --result_filepath=./output.txt \
           --scratch_dirpath=./scratch/ \
           --examples_dirpath=./model/id-00000119/clean-example-data/ \
