@@ -1,0 +1,41 @@
+Bootstrap: docker
+From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
+
+%files
+    ./learned_parameters /
+    ./lib/copy_all_models.py
+    ./lib/mlp_data.py
+    ./lib/mlp_model.py
+    ./model/README.md
+    ./models_to_train/README.md
+    ./scratch/README.md
+    ./utils/abstract.py
+
+    ./archs.py /
+    ./detector.py /
+    ./entrypoint.py /
+    ./metaparameters_schema.json /
+    ./metaparameters.json /
+    ./mlp_pipeline.def
+    ./README.md /
+    ./output.txt /
+
+%post
+    pip install --upgrade pip
+    pip install opencv-python jsonschema jsonargparse jsonpickle
+    pip install scikit-learn numpy pandas
+    pip install tqdm
+    pip install scipy
+
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    echo $PATH
+    exec python3 /entrypoint.py "$@"
+
+%labels
+    Author UMBC
+    Version v0.0.1
+
+%help
+    This is a GCN classifier container submitted by UMBC for Round 11.

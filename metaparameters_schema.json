@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Meta-Parameters for MLP for Round12",
+  "technique": "MLP",
+  "technique_description": "MLP Pipeline to Detect Trojaned Models",
+  "technique_changes": "First run on Round12 (cyber-pdf-dec2022)",
+  "commit_id": "",
+  "repo_name": "https://github.com/UMBC-Coral-Lab/mlp-trojai-submission-r12",
+  "required": [ "train_epochs", "train_batch_size" ],
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "train_epochs": {
+      "description": "The number of epochs to execute when training (configure mode)",
+      "type": "integer",
+      "minimum": 15,
+      "maximum": 30,
+      "suggested_minimum": 20,
+      "suggested_maximum": 25
+    },
+
+    "train_batch_size": {
+      "description": "The batch size for when training models (configure mode)",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64,
+      "suggested_minimum": 16,
+      "suggested_maximum": 32
+    }
+  }
+}

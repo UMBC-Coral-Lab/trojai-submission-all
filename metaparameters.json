@@ -1,0 +1,4 @@
+{
+  "train_epochs": 20,
+  "train_batch_size": 24
+}
