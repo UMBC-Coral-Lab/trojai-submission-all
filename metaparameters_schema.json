@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Algorithm Meta-Parameters",
+  "technique": "GCN",
+  "technique_description": "GCN Pipeline to Detect Trojaned Models",
+  "technique_changes": "First run on Round11 (image-classification-sep2022)",
+  "commit_id": "",
+  "repo_name": "",
+  "required": [ "epochs", "batch_size", "step_size" ],
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "epochs": {
+      "description": "The number of epochs to execute when training (configure mode)",
+      "type": "integer",
+      "minimum": 15,
+      "maximum": 30,
+      "suggested_minimum": 20,
+      "suggested_maximum": 25
+    },
+
+    "batch_size": {
+      "description": "The batch size for when training models (configure mode)",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64,
+      "suggested_minimum": 16,
+      "suggested_maximum": 32
+    },
+
+    "step_size": {
+      "description": "The stepsize for LR Scheduler",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    }
+  }
+}
