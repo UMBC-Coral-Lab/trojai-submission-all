@@ -167,4 +167,4 @@ models_to_test/
 models_to_train/
 scratch/
 output.txt
-.simg
+*.simg
