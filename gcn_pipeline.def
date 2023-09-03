@@ -1,0 +1,42 @@
+Bootstrap: docker
+From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
+
+%files
+    ./learned_parameters /
+    ./lib/copy_all_models.py
+    ./lib/gcn_dataset.py
+    ./lib/gcn_model.py
+    ./model /
+    ./gcn_pipeline.def /
+    ./gcn_pipeline.py /
+    ./metaparameters.json /
+    ./metaparameters_schema.json /
+    ./README.txt /
+    ./run_gcn_model.py /
+
+%post
+    pip install --upgrade pip
+    pip install timm==0.6.7
+    pip install opencv-python jsonschema jsonargparse jsonpickle
+    pip install transformers
+    pip install scikit-learn numpy pandas
+    pip install tqdm
+    pip install networkx
+    pip install scipy
+    pip install torch-scatter -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
+    pip install torch-sparse -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
+    pip install torch-geometric
+    pip uninstall torch-spline-conv
+
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    echo $PATH
+    exec python3 /gcn_pipeline.py "$@"
+
+%labels
+    Author UMBC
+    Version v0.0.1
+
+%help
+    This is a GCN classifier container submitted by UMBC for Round 11.
