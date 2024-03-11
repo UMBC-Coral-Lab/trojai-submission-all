@@ -30,7 +30,6 @@ from torch_geometric.loader import DataLoader
 # Local Imports
 from utils.abstract import AbstractDetector
 
-from lib.models_cyberapk17 import load_model, load_models_dirpath
 from lib.copy_all_models import copy_all_models
 from lib.gcn_dataset import GraphsDataset_Configure, GraphsDataset_Inference
 from lib.gcn_model import GraphConvModel_WithEdgeFeat, test_model, train_model
@@ -172,10 +171,8 @@ class Detector(AbstractDetector):
         # max_test_accuracy = 0.0
         # for feat in range(25, 200, 5):
         #     self.logger.info(f"[AUTO CONFIG] New max features: {feat}")
-
         #     self.train_params["max_feats"] = feat
         #     max_test_accuracy = self.automatic_configure_best_test(models_dirpath, max_test_accuracy, test_size = 0.2) # self.manual_configure(models_dirpath)
-
 
         for e in range(20, 41, 2):
             for b in range(18, 37, 6):
@@ -190,6 +187,7 @@ class Detector(AbstractDetector):
                     self.logger.info(f"[AUTO CONFIG]\t - node feature vector: {self.train_params['train_feature_vector']}")
 
                     self.manual_configure(models_dirpath)
+
 
     def manual_configure(self, models_dirpath: str):
         """Configuration of the detector using the parameters from the metaparameters

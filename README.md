@@ -12,7 +12,7 @@ The GCN Pipeline submission for TrojAI for Round-17 `cyber-apk-nov2023`
           --metaparameters_filepath ./metaparameters.json \
           --schema_filepath ./metaparameters_schema.json \
           --learned_parameters_dirpath ./learned_parameters/ \
-          --configure_models_dirpath ./models_to_train/round14/ 
+          --configure_models_dirpath ./models_to_train/round17/ 
   ```
 
  3. To run the GCN pipeline in automatic reconfiguraiton:
@@ -23,7 +23,7 @@ The GCN Pipeline submission for TrojAI for Round-17 `cyber-apk-nov2023`
           --metaparameters_filepath ./metaparameters.json \
           --schema_filepath ./metaparameters_schema.json \
           --learned_parameters_dirpath ./learned_parameters/ \
-          --configure_models_dirpath ./models_to_train/round14/ 
+          --configure_models_dirpath ./models_to_train/round17/ 
   ```
 
   * Any of the above options will run the training process and write the trained model to a directory specified by option `--learned_parameters_dirpath`.
@@ -33,7 +33,7 @@ The GCN Pipeline submission for TrojAI for Round-17 `cyber-apk-nov2023`
  4. To run the GCN pipeline in inference mode on a model:
   ```
   python entrypoint.py infer \
-          --model_filepath ./models_to_train/round14/id-00000000/model.pt \
+          --model_filepath ./models_to_train/round17/id-00000000/model.pt \
           --result_filepath ./output.txt \
           --scratch_dirpath ./scratch/ \
           --examples_dirpath ./examples/ \
