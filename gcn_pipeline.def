@@ -4,17 +4,16 @@ From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
 %files
     ./learned_parameters /
     ./lib/copy_all_models.py
+    ./lib/drebinnn.py
     ./lib/gcn_dataset.py
     ./lib/gcn_model.py
     ./utils /
     ./detector.py /
     ./entrypoint.py /
     ./gcn_pipeline.def /
-    ./gcn_pipeline.py /
     ./metaparameters.json /
     ./metaparameters_schema.json /
     ./README.md /
-    ./run_gcn_model.py /
 
 %post
     apt update
@@ -25,8 +24,8 @@ From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
     pip install tqdm
     pip install networkx
     pip install scipy
-    pip install torch-scatter -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
-    pip install torch-sparse -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
+    pip install --no-index torch-scatter -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
+    pip install --no-index torch-sparse -f https://data.pyg.org/whl/torch-1.12.0+cu113.html
     pip install torch-geometric
     pip uninstall torch-spline-conv
     chmod 755 /*.py
@@ -36,7 +35,7 @@ From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
     echo "Container was created $NOW"
     echo "Arguments received: $*"
     echo $PATH
-    exec python3 /gcn_pipeline.py "$@"
+    exec python3 /entrypoint.py "$@"
 
 %labels
     Author UMBC

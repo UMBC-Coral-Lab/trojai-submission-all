@@ -314,7 +314,15 @@ class Detector(AbstractDetector):
         if not os.path.exists( raw_path ):
             os.makedirs( raw_path )
 
-        dataset = GraphsDataset_Inference( model_filepath,
+        # convert the model to tbe infered into a standard drebinn torch-type model
+        from lib.gcn_model import load_drebinn_model
+        dest_model_filepath = os.path.join(scratch_dirpath, "infer/", "model.pt")
+        if not os.path.exists( os.path.join(scratch_dirpath, "infer/") ):
+            os.makedirs( os.path.join(scratch_dirpath, "infer/") )
+        model_new = load_drebinn_model(model_filepath)
+        torch.save(model_new, dest_model_filepath)
+
+        dataset = GraphsDataset_Inference( dest_model_filepath,
                                             device,
                                             root = graph_dataset_root,
                                             dataset_name_short = dataset_name_short,

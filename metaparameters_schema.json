@@ -5,7 +5,7 @@
 	"technique_description": "GCN Pipeline to Detect Trojaned Models.",
 	"technique_changes": "Round17 Run 1",
 	"technique_type": ["Other"],
-	"commit_id": "",
+	"commit_id": "14b63b5",
 	"repo_name": "https://github.com/UMBC-Coral-Lab/trojai-submission-all/tree/round17-cyber-apk-nov2023-gcn",
 	"required": [],
 	"additionalProperties": false,

@@ -59,7 +59,7 @@ The GCN Pipeline submission for TrojAI for Round-17 `cyber-apk-nov2023`
           --nv \
           ./cyber-apk-nov2023_sts_UMBC_gcn.simg \
           infer \
-          --model_filepath=./models_to_train/round14/id-000000012/model.pt \
+          --model_filepath=./models_to_train/round17/id-00000000/model.pt \
           --result_filepath=./output.txt \
           --scratch_dirpath=./scratch/ \
           --examples_dirpath=./model/id-00000119/clean-example-data/ \
@@ -71,4 +71,4 @@ The GCN Pipeline submission for TrojAI for Round-17 `cyber-apk-nov2023`
   * To submit container to train or test leaderboards, change the `sts` to `train` or `test` and **rebuild** container. Rebuilding is important otherwise container does not get picked up for execution.
 
 
- 7. To submit the container for execution, upload the container to GDrive of umbctrojai account and share it with trojai@nist.gov.
+ 7. To submit the container for execution, upload the container to GDrive of umbctrojai account and share it with trojai@nist.gov
