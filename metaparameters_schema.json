@@ -1,0 +1,39 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Meta-Parameters for GCN for Round19.",
+	"technique": "GCN",
+	"technique_description": "GCN Pipeline to Detect Trojaned Models.",
+	"technique_changes": "Round19 Run 1",
+	"technique_type": ["Other"],
+	"commit_id": "acc95a9",
+	"repo_name": "https://github.com/UMBC-Coral-Lab/trojai-submission-all/tree/round19-cyber-network-c2-mar2024-gcn",
+	"required": [],
+	"additionalProperties": false,
+	"type": "object",
+	"properties": {
+		"train_epochs": {
+			"description": "The number of epochs to train the classifier for.",
+			"type": "integer",
+			"minimum": 20,
+			"maximum": 41,
+			"suggested_minimum": 30,
+			"suggested_maximum": 35
+		},
+		"train_batch_size": {
+			"description": "The batch size to use to train the classifier.",
+			"type": "integer",
+			"minimum": 18,
+			"maximum": 37,
+			"suggested_minimum": 18,
+			"suggested_maximum": 24
+		},
+		"train_feature_vector": {
+			"description": "The training node features vector to use.",
+			"type": "integer",
+			"minimum": 4,
+			"maximum": 12,
+			"suggested_minimum": 6,
+			"suggested_maximum": 9
+		}
+	}
+}
