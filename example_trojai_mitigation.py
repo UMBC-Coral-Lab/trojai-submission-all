@@ -74,6 +74,7 @@ def prepare_mitigation(args, config_json):
     :return: A subclass of TrojaiMitigation that can implement a given mitigtaion technique
     """
     # Get required classes for loss and optimizer dynamically
+    print(f"[PREPARE_MITIGATION] Preparing mitigation.")
     loss_class = getattr(torch.nn, config_json['loss_class'])
     optim_class = getattr(torch.optim, config_json['optimizer_class'])
 
@@ -108,12 +109,13 @@ def prepare_model(path, device):
     :param device: Either cpu or cuda to push the device onto
     :return: A pytorch model
     """
+    print(f"[PREPARE_MODEL] Loading torch model from '{path}'")
     model = torch.load(path)
     model = model.to(device=device)
     return model
 
 
-def mitigate_model(model, mitigation, dataset, output_dir, output_name):
+def mitigate_model(model, mitigation, clean_dataset, poisoned_dataset, output_dir, output_name):
     """Given the a torch model and a path to a dataset that may or may not contain clean/poisoned examples, output a mitigated
     model into the output directory.
 
@@ -123,13 +125,13 @@ def mitigate_model(model, mitigation, dataset, output_dir, output_name):
     :param output_dir: The directory where the mitigated model's state dict is to be saved to.
     :param output_name: the name of the pytorch model that will be saved
     """
-    print("Mitigating model (from entrypoint)")
-    mitigated_model = mitigation.mitigate_model(model, dataset)
+    print("[MITIGATE_MODEL] Mitigating model (from entrypoint)")
+    mitigated_model = mitigation.mitigate_model(model, clean_dataset, poisoned_dataset)
     os.makedirs(output_dir, exist_ok=True)
     torch.save(mitigated_model.model, os.path.join(output_dir, output_name))
 
 
-def test_model(model, mitigation, testset, batch_size, num_workers, device):
+def test_model(model, mitigation, clean_dataset, poisoned_dataset, batch_size, num_workers, device):
     """Tests a given model on a given dataset, using a given mitigation's pre and post processing
     before and after interfence. 
 
@@ -141,13 +143,24 @@ def test_model(model, mitigation, testset, batch_size, num_workers, device):
     :param device: cuda or cpu device
     :return: dictionary of the results with the labels and logits
     """
-    dataloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, num_workers=num_workers)
-    
+
     model.eval()
     all_logits = torch.tensor([])
     all_labels = torch.tensor([])
     all_fnames = []
-    
+
+    dataloader = torch.utils.data.DataLoader(clean_dataset, batch_size=batch_size, num_workers=num_workers)
+    # Label could be None in case the dataset did not require it to load
+    for x, y, fname in tqdm(dataloader):
+        preprocess_x, info = mitigation.preprocess_transform(x)
+        output_logits = model(preprocess_x.to(device)).detach().cpu()
+        final_logits = mitigation.postprocess_transform(output_logits.detach().cpu(), info)
+
+        all_logits = torch.cat([all_logits, final_logits], axis=0)
+        all_labels = torch.cat([all_labels, y], axis=0)
+        all_fnames.extend(fname)
+
+    dataloader = torch.utils.data.DataLoader(poisoned_dataset, batch_size=batch_size, num_workers=num_workers)
     # Label could be None in case the dataset did not require it to load
     for x, y, fname in tqdm(dataloader):
         preprocess_x, info = mitigation.preprocess_transform(x)
@@ -165,8 +178,9 @@ def test_model(model, mitigation, testset, batch_size, num_workers, device):
 
 def prepare_dataset(dataset_path, split_name):
     # dataset = Round11SampleDataset(root=dataset_path, split=split_name, require_label=False)
-    dataset = Round21Dataset(root=dataset_path, split=split_name, require_label=True)
-    return dataset
+    clean_dataset = Round21Dataset(root = dataset_path, get_clean = True, split = split_name, require_label = True)
+    poisoned_dataset = Round21Dataset(root = dataset_path, get_clean = False, split = split_name, require_label = True)
+    return clean_dataset, poisoned_dataset
 
 
 # Executes in mitigate mode, generating an approach to mitigate the model
@@ -184,14 +198,14 @@ def run_mitigate_mode(args):
     # Throws a fairly descriptive error if validation fails.
     jsonschema.validate(instance=config_json, schema=schema_json)
 
-    print("[MitigateMode] Preparing model")
+    print("[MITIGATE_MODE] Preparing model")
     model = prepare_model(args.model_filepath, args.device)
-    print("[MitigateMode] Preparing mitigation")
+    print("[MITIGATE_MODE] Preparing mitigation")
     mitigation = prepare_mitigation(args, config_json)
-    print("[MitigateMode] Preparing dataset")
-    dataset = prepare_dataset(args.dataset_dirpath, split_name='train')
+    print("[MITIGATE_MODE] Preparing dataset")
+    clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name='train')
 
-    mitigate_model(model, mitigation, dataset, args.output_dirpath, args.model_output_name)
+    mitigate_model(model, mitigation, clean_dataset, poisoned_dataset, args.output_dirpath, args.model_output_name)
 
 # Executes in test model, outputting model logits for each example
 def run_test_mode(args):
@@ -204,14 +218,14 @@ def run_test_mode(args):
     # Throws a fairly descriptive error if validation fails.
     jsonschema.validate(instance=config_json, schema=schema_json)
 
-    print("[TestMode] Preparing model")
+    print("[TEST_MODE] Preparing model")
     model = prepare_model(args.model_filepath, args.device)
-    print("[TestMode] Preparing mitigation")
+    print("[TEST_MODE] Preparing mitigation")
     mitigation = prepare_mitigation(args, config_json)
-    print("[TestMode] Preparing dataset")
-    dataset = prepare_dataset(args.dataset_dirpath, split_name='test')
+    print("[TEST_MODE] Preparing dataset")
+    clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name='test')
 
-    results = test_model(model, mitigation, dataset, args.batch_size, args.num_workers, args.device)
+    results = test_model(model, mitigation, clean_dataset, poisoned_dataset, args.batch_size, args.num_workers, args.device)
     with open(os.path.join(args.output_dirpath, "results.json"), 'w+') as f:
         json.dump(results, f)
 

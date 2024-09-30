@@ -3,19 +3,27 @@
 
 UMBC's mitigation technique submission for Round-21 `mitigation-image-classification-jun2024` 
 
-1. Before doing anything else: conda activate toy-project-env
+1. **Activate conda environment**: 
+```
+conda activate <env_name>
+```
  
-2. Install all the requirements:
-```
-pip install -r requirements.txt
-```
+2. **Install all the requirements**:
+    * Package requirements:
+    ```
+    pip install -r requirements.txt
+    ```
+    * Additional System requirements include:
+      * Linux (tested on Ubuntu 22.04)
+      * CUDA capable NVIDIA GPU (tested on A100)
+      * Python >= 3.9
 
-3. Install the mitigation round framework into your venv as well:
+3. **Install the mitigation round framework into your venv**:
 ```
 pip install -e ./trojai-mitigation-round-framework
 ```
 
-4. If conducting mitigation, ensure you pass the mitigate flag:
+4. If **conducting mitigation**, ensure you pass the mitigate flag:
 ```
 python example_trojai_mitigation.py \
  mitigate \
@@ -29,21 +37,21 @@ python example_trojai_mitigation.py \
  > logs/mitigate.txt
 ```
 
-5. If conducting evaluation, you can use the test flag to separately test the cleaned model on an arbitrary dataset which produces a results.json file:
+5. If **conducting evaluation**, you can use the test flag to separately test the cleaned model on an arbitrary dataset which produces a results.json file:
 ```
-python3 example_trojai_mitigation.py \
+python example_trojai_mitigation.py \
  test \
  --metaparameters_filepath=metaparameters.json \
  --schema_filepath=metaparameters_schema.json \
- --model_filepath=models_to_mitigate/mitigated_model.pt \
+ --model_filepath=models_to_mitigate/train-dataset/models/id-00000000/model.pt \
  --dataset_dirpath=models_to_mitigate/train-dataset/ \
  --output_dirpath=scratch/output/ \ 
  > logs/mitigate_test.txt
 ```
 
-6. To obtain example metrics from here, call the example_metrics.py script on the produced result.json file:
+6. **To obtain example metrics** from here, call the `example_metrics.py` script on the produced `result.json` file:
 ```
-python3 example_metrics.py \
+python example_metrics.py \
  --metrics f1 accuracy \
  --result_file /path/to/results.json \
  --model_name <model name to be used in csv> \
@@ -52,7 +60,48 @@ python3 example_metrics.py \
  > logs/mterics.txt
 ```
 
-7. For debugging cuda errors, use the following as the predecessor before any `python` command:
+7. **For debugging cuda errors**, use the following as the predecessor before any `python` command:
 ```
 CUDA_LAUNCH_BLOCKING=1
 ```
+
+8. To create container:
+   
+    8.1. Delete any old copy of the container:
+    ```
+    rm mitigation.simg
+    ```
+   
+    8.2. Create the container `mitigation-image-classification-jun2024_sts_UMBC_pruning.simg` for STS leaderboard submission:
+    ```
+    sudo singularity build mitigation-image-classification-jun2024_sts_UMBC_pruning.simg mitigation.def
+    ```
+   
+    8.3. Run container in mitigation mode:
+    ```
+    singularity run \
+     --bind /full/path/to/this-repo-trojai-example \
+     --nv \
+     ./mitigation-image-classification-jun2024_sts_UMBC_pruning.simg \
+     mitigate \
+      --metaparameters_filepath=metaparameters.json \
+      --schema_filepath=metaparameters_schema.json \
+      --model_filepath=models_to_mitigate/train-dataset/models/id-00000000/model.pt \
+      --dataset_dirpath=models_to_mitigate/train-dataset/ \
+      --output_dirpath=scratch/output/ \
+      --model_output_name=mitigated_model.pt \
+    ```
+   
+    8.4. Run container in test mode:
+    ```
+    singularity run \
+     --bind /full/path/to/this-repo-trojai-example \
+     --nv \
+     ./mitigation-image-classification-jun2024_sts_UMBC_pruning.simg \
+     test \
+      --metaparameters_filepath=metaparameters.json \
+      --schema_filepath=metaparameters_schema.json \
+      --model_filepath=models_to_mitigate/train-dataset/models/id-00000000/model.pt \
+      --dataset_dirpath=models_to_mitigate/train-dataset/ \
+      --output_dirpath=scratch/output/ \ 
+    ```

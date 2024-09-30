@@ -101,7 +101,7 @@ class PruningMitigationTrojai(TrojAIMitigation):
         return SubsetRandomSampler(tr_idx), SubsetRandomSampler(te_idx)
 
 
-    def mitigate_model(self, model: torch.nn.Module, dataset: Dataset) -> TrojAIMitigatedModel:
+    def mitigate_model(self, model: torch.nn.Module, clean_dataset: Dataset, poisoned_dataset: Dataset) -> TrojAIMitigatedModel:
         """
         Args:
             model: the model to repair
@@ -113,7 +113,7 @@ class PruningMitigationTrojai(TrojAIMitigation):
         model_arch, node_count = self.get_model_architecture(model)
 
         all_kl_div = {}
-        node_count = 3
+        # node_count = 3
         for node_idx in range(node_count):
             print(f"================== Node: {node_idx} ==================")
             # We have original 'model' and zeroed 'mitigated_model'
@@ -123,11 +123,7 @@ class PruningMitigationTrojai(TrojAIMitigation):
             model.eval()
             mitigated_model.eval()
 
-            model_probs = []
-            mitigated_model_probs = []
-
-
-            dataloader = DataLoader(dataset,
+            clean_dataloader = DataLoader(clean_dataset,
                                     batch_size = self.batch_size,
                                     shuffle = True,
                                     # sampler = tr_sampler,
@@ -135,14 +131,25 @@ class PruningMitigationTrojai(TrojAIMitigation):
                                     num_workers = self.num_workers,
                                     drop_last = True,
                                     pin_memory = True)
-            evaldata = tqdm(enumerate(dataloader), unit = " batch")
-            print(f"   [COMPARE MODELS Node: {node_idx}] Total number of batches: {len(dataloader)}")
+            poisoned_dataloader = DataLoader(poisoned_dataset,
+                                    batch_size = self.batch_size,
+                                    shuffle = True,
+                                    # sampler = tr_sampler,
+                                    collate_fn = self.custom_collate,
+                                    num_workers = self.num_workers,
+                                    drop_last = True,
+                                    pin_memory = True)
 
-            for batch_id, (image, label, _) in evaldata:
-                print(f"      Images in batch: {len(image)}")
+            # clean_model_probs = []
+            # clean_mitigated_model_probs = []
+            clean_kl_div = 0
+
+            clean_evaldata = tqdm(enumerate(clean_dataloader), unit = " batch")
+            print(f"   [COMPARE MODELS (Clean images) Node: {node_idx}] Total number of batches: {len(clean_dataloader)}")
+            for batch_id, (image, label, _) in clean_evaldata:
+                # print(f"      Images in batch: {len(image)}")
 
                 image = image.to(self.device)
-                label = label.to(self.device)
 
                 # For each mode, we:
                 # 1. Move model to gpu device
@@ -152,7 +159,7 @@ class PruningMitigationTrojai(TrojAIMitigation):
                 # 5. Empty cache to free up gpu memory. This step is where we reclaim gpu mem
                 model = model.to(self.device)
                 output = model(image)
-                pred_original = torch.softmax(output.detach(), dim = 1)
+                pred_original = torch.log_softmax(output.detach(), dim = 1)
                 # print(f"      output.detach() {output.detach()}")
                 # print(f"      output.detach().shape: {output.detach().shape}")
                 # print(f"      pred_original: {pred_original}")
@@ -174,19 +181,62 @@ class PruningMitigationTrojai(TrojAIMitigation):
                 mitigated_model = mitigated_model.to('cpu')
                 torch.cuda.empty_cache()
 
-                model_probs.extend(pred_original)
-                mitigated_model_probs.extend(pred_mitigated)
+                # clean_model_probs.extend(pred_original)
+                # clean_mitigated_model_probs.extend(pred_mitigated)
 
-                print(f"      len(model_probs): {len(model_probs)}")
-                print(f"      len(model_probs[0]): {len(model_probs[0])}")
-                print(f"      len(mitigated_model_probs): {len(mitigated_model_probs)}")
-                print(f"      len(mitigated_model_probs[0]): {len(mitigated_model_probs[0])}")
+                # print(f"      len(model_probs): {len(model_probs)}")
+                # print(f"      len(model_probs[0]): {len(model_probs[0])}")
+                # print(f"      len(mitigated_model_probs): {len(mitigated_model_probs)}")
+                # print(f"      len(mitigated_model_probs[0]): {len(mitigated_model_probs[0])}")
 
-            # the expected excess surprise from using 'pred_original' as a model instead of 'pred_mitigated'
-            kl_div = torch.nn.functional.kl_div(pred_original, pred_mitigated, reduction = 'sum')
-            all_kl_div[node_idx] = kl_div
+                # the expected excess surprise from using 'model' as a model instead of 'mitigated_model'
+                clean_kl_div += torch.nn.functional.kl_div(pred_original, pred_mitigated, reduction = 'sum')
+                clean_evaldata.set_description(f"[COMPARE MODELS (Clean images) Node: {node_idx}] Batch: {batch_id} | KL Divergence: {clean_kl_div}")
 
-            print(f"   [COMPARE MODELS Node: {node_idx}] Batch: {batch_id} | KL Divergence: {kl_div}")
+            # poisoned_model_probs = []
+            # poisoned_mitigated_model_probs = []
+            poisoned_kl_div = 0
+
+            if(len(poisoned_dataloader) > 0):
+                poisoned_evaldata = tqdm(enumerate(poisoned_dataloader), unit = " batch")
+                print(f"   [COMPARE MODELS (Posioned images) Node: {node_idx}] Total number of batches: {len(poisoned_dataloader)}")
+                for batch_id, (image, label, _) in poisoned_evaldata:
+                    # print(f"      Images in batch: {len(image)}")
+
+                    image = image.to(self.device)
+
+                    # For each mode, we:
+                    # 1. Move model to gpu device
+                    # 2. Get logits and then get class probabilities
+                    # 3. Detach logits. This is crucial, to be able to remove model graph from gpu memory and effectively reclaim memory
+                    # 4. Move model back to cpu
+                    # 5. Empty cache to free up gpu memory. This step is where we reclaim gpu mem
+                    model = model.to(self.device)
+                    output = model(image)
+                    pred_original = torch.log_softmax(output.detach(), dim = 1)
+                    model = model.to('cpu')
+                    torch.cuda.empty_cache()
+
+                    mitigated_model = mitigated_model.to(self.device)
+                    output = mitigated_model(image)
+                    pred_mitigated = torch.softmax(output.detach(), dim = 1)
+                    mitigated_model = mitigated_model.to('cpu')
+                    torch.cuda.empty_cache()
+
+                    # poisoned_model_probs.extend(pred_original)
+                    # poisoned_mitigated_model_probs.extend(pred_mitigated)
+
+                    # the expected excess surprise from using 'model' as a model instead of 'mitigated_model'
+                    poisoned_kl_div += torch.nn.functional.kl_div(pred_original, pred_mitigated, reduction = 'sum')
+                    poisoned_evaldata.set_description(f"[COMPARE MODELS (Poisoned images) Node: {node_idx}] Batch: {batch_id} | KL Divergence: {poisoned_kl_div}")
+
+
+
+            all_kl_div[node_idx] = poisoned_kl_div - clean_kl_div
+
+            print(f"   [COMPARE MODELS Node: {node_idx}] Clean KL Divergence: {clean_kl_div}")
+            print(f"   [COMPARE MODELS Node: {node_idx}] Posioned KL Divergence: {poisoned_kl_div}")
+            print(f"   [COMPARE MODELS Node: {node_idx}] Overall KL Divergence: {poisoned_kl_div - clean_kl_div}")
 
             # remove mitigated_model from gpu and delete to free up space and memory clean up
             import gc

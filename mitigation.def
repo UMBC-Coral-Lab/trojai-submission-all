@@ -2,11 +2,17 @@ Bootstrap: docker
 From: pytorch/pytorch:2.2.2-cuda11.8-cudnn8-runtime
 
 %files
-    ./example_trojai_mitigation.py /
+    ./lib /
+    ./logs /
+    ./scratch /
     ./trojai-mitigation-round-framework /
     ./utils /
     ./metaparameters.json /
     ./metaparameters_schema.json /
+    ./example_metrics.py /
+    ./example_trojai_mitigation.py /
+    ./mitigation.def /
+    ./output.txt /
     ./requirements.txt /
 
 %post
