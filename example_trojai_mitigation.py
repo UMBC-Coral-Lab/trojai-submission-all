@@ -149,38 +149,42 @@ def test_model(model, mitigation, clean_dataset, poisoned_dataset, batch_size, n
     all_labels = torch.tensor([])
     all_fnames = []
 
-    dataloader = torch.utils.data.DataLoader(clean_dataset, batch_size=batch_size, num_workers=num_workers)
-    # Label could be None in case the dataset did not require it to load
-    for x, y, fname in tqdm(dataloader):
-        preprocess_x, info = mitigation.preprocess_transform(x)
-        output_logits = model(preprocess_x.to(device)).detach().cpu()
-        final_logits = mitigation.postprocess_transform(output_logits.detach().cpu(), info)
+    if(clean_dataset is not None):
+        dataloader = torch.utils.data.DataLoader(clean_dataset, batch_size=batch_size, num_workers=num_workers)
+        # Label could be None in case the dataset did not require it to load
+        for x, y, fname in tqdm(dataloader):
+            preprocess_x, info = mitigation.preprocess_transform(x)
+            output_logits = model(preprocess_x.to(device)).detach().cpu()
+            final_logits = mitigation.postprocess_transform(output_logits.detach().cpu(), info)
 
-        all_logits = torch.cat([all_logits, final_logits], axis=0)
-        all_labels = torch.cat([all_labels, y], axis=0)
-        all_fnames.extend(fname)
+            all_logits = torch.cat([all_logits, final_logits], axis=0)
+            all_labels = torch.cat([all_labels, y], axis=0)
+            all_fnames.extend(fname)
 
-    dataloader = torch.utils.data.DataLoader(poisoned_dataset, batch_size=batch_size, num_workers=num_workers)
-    # Label could be None in case the dataset did not require it to load
-    for x, y, fname in tqdm(dataloader):
-        preprocess_x, info = mitigation.preprocess_transform(x)
-        output_logits = model(preprocess_x.to(device)).detach().cpu()
-        final_logits = mitigation.postprocess_transform(output_logits.detach().cpu(), info)
+    if(poisoned_dataset is not None):
+        dataloader = torch.utils.data.DataLoader(poisoned_dataset, batch_size=batch_size, num_workers=num_workers)
+        # Label could be None in case the dataset did not require it to load
+        for x, y, fname in tqdm(dataloader):
+            preprocess_x, info = mitigation.preprocess_transform(x)
+            output_logits = model(preprocess_x.to(device)).detach().cpu()
+            final_logits = mitigation.postprocess_transform(output_logits.detach().cpu(), info)
 
-        all_logits = torch.cat([all_logits, final_logits], axis=0)
-        all_labels = torch.cat([all_labels, y], axis=0)
-        all_fnames.extend(fname)
+            all_logits = torch.cat([all_logits, final_logits], axis=0)
+            all_labels = torch.cat([all_labels, y], axis=0)
+            all_fnames.extend(fname)
     
     fname_to_logits = dict(zip(all_fnames, all_logits.tolist()))
 
     return fname_to_logits
 
 
-def prepare_dataset(dataset_path, split_name):
+def prepare_dataset(dataset_path, split_name, require_label):
     # dataset = Round11SampleDataset(root=dataset_path, split=split_name, require_label=False)
-    clean_dataset = Round21Dataset(root = dataset_path, get_clean = True, split = split_name, require_label = True)
-    poisoned_dataset = Round21Dataset(root = dataset_path, get_clean = False, split = split_name, require_label = True)
-    return clean_dataset, poisoned_dataset
+    # clean_dataset = Round21Dataset(root = dataset_path, get_clean = True, split = split_name, require_label = require_label)
+    # poisoned_dataset = Round21Dataset(root = dataset_path, get_clean = False, split = split_name, require_label = require_label)
+    # return clean_dataset, poisoned_dataset
+    dataset = Round21Dataset(root = dataset_path, get_clean = False, split = split_name, require_label = require_label)
+    return dataset
 
 
 # Executes in mitigate mode, generating an approach to mitigate the model
@@ -203,9 +207,10 @@ def run_mitigate_mode(args):
     print("[MITIGATE_MODE] Preparing mitigation")
     mitigation = prepare_mitigation(args, config_json)
     print("[MITIGATE_MODE] Preparing dataset")
-    clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name='train')
+    # clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name = 'train', require_label = True)
+    dataset = prepare_dataset(args.dataset_dirpath, split_name = 'train', require_label = True)
 
-    mitigate_model(model, mitigation, clean_dataset, poisoned_dataset, args.output_dirpath, args.model_output_name)
+    mitigate_model(model, mitigation, None, dataset, args.output_dirpath, args.model_output_name)
 
 # Executes in test model, outputting model logits for each example
 def run_test_mode(args):
@@ -223,9 +228,10 @@ def run_test_mode(args):
     print("[TEST_MODE] Preparing mitigation")
     mitigation = prepare_mitigation(args, config_json)
     print("[TEST_MODE] Preparing dataset")
-    clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name='test')
+    # clean_dataset, poisoned_dataset = prepare_dataset(args.dataset_dirpath, split_name = 'test', require_label = False)
+    dataset = prepare_dataset(args.dataset_dirpath, split_name = 'train', require_label = False)
 
-    results = test_model(model, mitigation, clean_dataset, poisoned_dataset, args.batch_size, args.num_workers, args.device)
+    results = test_model(model, mitigation, None, dataset, args.batch_size, args.num_workers, args.device)
     with open(os.path.join(args.output_dirpath, "results.json"), 'w+') as f:
         json.dump(results, f)
 

@@ -30,7 +30,7 @@ python example_trojai_mitigation.py \
  --metaparameters_filepath=metaparameters.json \
  --schema_filepath=metaparameters_schema.json \
  --model_filepath=models_to_mitigate/train-dataset/models/id-00000000/model.pt \
- --dataset_dirpath=models_to_mitigate/train-dataset/models/id-00000000/ \
+ --dataset_dirpath=models_to_mitigate/train-dataset/models/id-00000000/new-poisoned-example-data/ \
  --output_dirpath=scratch/output/ \
  --model_output_name=mitigated_model.pt \
  --round_training_dataset_dirpath=models_to_mitigate/train-dataset/models/id-00000000/ \

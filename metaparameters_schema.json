@@ -5,7 +5,7 @@
     "technique_description": "Iteratively 0 the weights in the fc layer, to see which version of the model achieve best mitigated performance. Future improvements could include a more sophisticated pruning technique.",
     "technique_changes": "",
     "technique_type": ["Weight Modification"],
-    "commit_id": "",
+    "commit_id": "2bb6636",
     "repo_name": "https://github.com/UMBC-Coral-Lab/trojai-submission-all/blob/round19-cyber-network-c2-mar2024-gcn",
     "required": [],
     "additionalProperties": false,

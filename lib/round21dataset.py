@@ -55,58 +55,60 @@ class Round21Dataset(Dataset):
 
         # Iterate over new poisoned example data, each example contains a filename such as '305.png', with associated ground truth '305.json'
         # Ground truth is stored as a dictionary with 'clean_label' and 'poisoned_label'
-        if((not get_clean) and os.path.exists(new_poisoned_data_example_dirpath)):
-            print(f"[Round21Dataset] ======= Processing {new_poisoned_data_example_dirpath} =======")
-            for example_file in os.listdir(new_poisoned_data_example_dirpath):
-                if example_file.endswith('.png'):
-                    print(f"[Round21Dataset]   ---- File #{file_counter}: {example_file} ----")
-                    example_basename_no_ext = os.path.splitext(example_file)[0]
-                    example_image_filepath = os.path.join(new_poisoned_data_example_dirpath, example_file)
-                    example_groundtruth_filepath = os.path.join(new_poisoned_data_example_dirpath, '{}.json'.format(example_basename_no_ext))
+        # if((not get_clean) and os.path.exists(new_poisoned_data_example_dirpath)):
+        #     print(f"[Round21Dataset] ======= Processing {new_poisoned_data_example_dirpath} =======")
+        current_root = training_models_dirpath
+        for example_file in os.listdir(current_root):
+            if(example_file.endswith(tuple(img_exts))):
+                print(f"[Round21Dataset]   ---- File #{file_counter}: {example_file} ----")
+                example_basename_no_ext = os.path.splitext(example_file)[0]
+                example_image_filepath = os.path.join(current_root, example_file)
+                example_groundtruth_filepath = os.path.join(current_root, '{}.json'.format(example_basename_no_ext))
 
-                    if(require_label):
-                        with open(example_groundtruth_filepath, 'r') as fp:
-                            example_groundtruth_dict = json.load(fp)
-                            clean_label = example_groundtruth_dict['clean_label']
-                            poisoned_label = example_groundtruth_dict['poisoned_label']
+                if(require_label):
+                    with open(example_groundtruth_filepath, 'r') as fp:
+                        example_groundtruth_dict = json.load(fp)
+                        clean_label = example_groundtruth_dict['clean_label']
+                        # poisoned_label = example_groundtruth_dict['poisoned_label']
 
-                            print(f"[Round21Dataset]      Image path: {example_image_filepath}")
-                            print(f"[Round21Dataset]      clean_label: {clean_label}")
-                            print(f"[Round21Dataset]      poisoned_label: {poisoned_label}")
+                        print(f"[Round21Dataset]      Image path: {example_image_filepath}")
+                        print(f"[Round21Dataset]      clean_label: {clean_label}")
+                        # print(f"[Round21Dataset]      poisoned_label: {poisoned_label}")
 
-                    pil_img = Image.open( example_image_filepath ).convert("RGB")
-                    self.images.append( pil_img )
-                    self.labels.append( clean_label )
-                    self.fnames.append( Path(example_file).name )
+                pil_img = Image.open( example_image_filepath ).convert("RGB")
+                self.images.append( pil_img )
+                self.labels.append( clean_label )
+                self.fnames.append( Path(example_file).name )
 
-                    file_counter += 1
+                file_counter += 1
 
         # Iterate over new clean example data, each example contains a filename such as '305.png', with associated ground truth '305.json'
         # Ground truth is stored as a dictionary with 'clean_label
         # if(split == 'test'):
-        if(get_clean and os.path.exists(new_clean_data_example_dirpath)):
-            print(f"[Round21Dataset] ======= Processing {new_clean_data_example_dirpath} =======")
-            for example_file in os.listdir(new_clean_data_example_dirpath):
-                if example_file.endswith('.png'):
-                    print(f"[Round21Dataset]   ---- File #{file_counter}: {example_file} ---- ")
-                    example_basename_no_ext = os.path.splitext(example_file)[0]
-                    example_image_filepath = os.path.join(new_clean_data_example_dirpath, example_file)
-                    example_groundtruth_filepath = os.path.join(new_clean_data_example_dirpath, '{}.json'.format(example_basename_no_ext))
-
-                    if(require_label):
-                        with open(example_groundtruth_filepath, 'r') as fp:
-                            example_groundtruth_dict = json.load(fp)
-                            clean_label = example_groundtruth_dict['clean_label']
-
-                            print(f"[Round21Dataset]      Image path: {example_image_filepath}")
-                            print(f"[Round21Dataset]      clean_label: {clean_label}")
-
-                    pil_img = Image.open( example_image_filepath ).convert("RGB")
-                    self.images.append( pil_img )
-                    self.labels.append( clean_label )
-                    self.fnames.append( Path(example_file).name )
-
-                    file_counter += 1
+        # if(get_clean and os.path.exists(new_clean_data_example_dirpath)):
+        #     print(f"[Round21Dataset] ======= Processing {new_clean_data_example_dirpath} =======")
+        #     current_root = new_clean_data_example_dirpath
+        #     for example_file in os.listdir(current_root):
+        #         if example_file.endswith('.png'):
+        #             print(f"[Round21Dataset]   ---- File #{file_counter}: {example_file} ---- ")
+        #             example_basename_no_ext = os.path.splitext(example_file)[0]
+        #             example_image_filepath = os.path.join(current_root, example_file)
+        #             example_groundtruth_filepath = os.path.join(current_root, '{}.json'.format(example_basename_no_ext))
+        #
+        #             if(require_label):
+        #                 with open(example_groundtruth_filepath, 'r') as fp:
+        #                     example_groundtruth_dict = json.load(fp)
+        #                     clean_label = example_groundtruth_dict['clean_label']
+        #
+        #                     print(f"[Round21Dataset]      Image path: {example_image_filepath}")
+        #                     print(f"[Round21Dataset]      clean_label: {clean_label}")
+        #
+        #             pil_img = Image.open( example_image_filepath ).convert("RGB")
+        #             self.images.append( pil_img )
+        #             self.labels.append( clean_label )
+        #             self.fnames.append( Path(example_file).name )
+        #
+        #             file_counter += 1
 
 
     def __len__(self):
