@@ -2,7 +2,10 @@ Bootstrap: docker
 From: pytorch/pytorch:2.2.2-cuda11.8-cudnn8-runtime
 
 %files
-    ./lib /
+    ./lib/__init__.py
+    ./lib/pruning_finetune_mitigation.py
+    ./lib/pruning_mitigation.py
+    ./lib/round21dataset.py
     ./logs /
     ./scratch /
     ./trojai-mitigation-round-framework /
@@ -14,6 +17,7 @@ From: pytorch/pytorch:2.2.2-cuda11.8-cudnn8-runtime
     ./mitigation.def /
     ./output.txt /
     ./requirements.txt /
+    ./README.md /
 
 %post
     apt update

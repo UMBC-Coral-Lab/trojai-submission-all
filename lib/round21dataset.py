@@ -47,6 +47,9 @@ class Round21Dataset(Dataset):
         file_counter = 1
         # for model_dir in os.listdir(training_models_dirpath):
         # training_model_dirpath = os.path.join(training_models_dirpath, model_dir)
+
+        print(f"Files in root: {os.listdir(training_models_dirpath)}")
+
         new_clean_data_example_dirpath = os.path.join(training_models_dirpath, 'new-clean-example-data')
         new_poisoned_data_example_dirpath = os.path.join(training_models_dirpath, 'new-poisoned-example-data')
 
